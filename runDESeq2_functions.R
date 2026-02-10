@@ -158,4 +158,6 @@ batch_runDESeq2 <- function(input_comparisons, counts, metadata, gene_id_format 
                           pre_filtering = pre_filtering,
                           sink_to_log = sink_to_log)
   }
+  
+  return(res)
 }
