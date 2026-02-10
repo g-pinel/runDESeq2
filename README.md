@@ -37,7 +37,7 @@ This is a wrapper function that passes all the arguments to the *runDESeq2* func
 - **outdir**: the directory where all result files will be output.
 
 This is how the XLSX file would look like to perform the comparison 
-'I want to compare male gonads versus female gonads using chromosomes as a covariate and filtering for high-fat diet samples':
+'Male gonads versus female gonads using chromosomes as a covariate and filtering for high-fat diet samples':
 
 ![Example XLSX file containing the comparison parameters. The custom_label column contains the string "gonad_HF", the target_var column the "gonads" string, the covariates column the "chromosomes" string, the filter_var column the "diet" string, the filter_levels column the "HF" string, short for high fat, and the outdir column the "results/DE/" string](/assets/example_xlsx.png "Example runDESeq2 input XLSX file")
 
