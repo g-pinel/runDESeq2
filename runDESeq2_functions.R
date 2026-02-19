@@ -1,7 +1,7 @@
 library(tidyverse)
 library(DESeq2)
 
-runDESeq2 <- function(counts, metadata, target_var, covariates = NA, filter_var = NULL, filter_levels = NULL, outdir, gene_id_format = NULL, geneAnno = NULL, custom_label, pre_filtering = TRUE, sink_to_log = TRUE){
+runDESeq2 <- function(counts, metadata, target_var, covariates = NA, filter_var = NULL, filter_levels = NULL, filter_var2 = NULL, filter_levels2 = NULL, outdir, gene_id_format = NULL, geneAnno = NULL, custom_label, pre_filtering = TRUE, sink_to_log = TRUE){
   
   # If needed, create results directory for the results
   # Create folder for results of differential expression analysis
@@ -25,10 +25,16 @@ runDESeq2 <- function(counts, metadata, target_var, covariates = NA, filter_var 
   }
   
   # Filter metadata
-  if(!missing(filter_var)){
+  if(!is.na(filter_var)){
     metadata_filtered <- metadata %>% dplyr::filter(!!sym(filter_var) %in% filter_levels)
   }else{
     metadata_filtered <- metadata
+  }
+  
+  if(!is.na(filter_var2)){
+    metadata_filtered <- metadata_filtered %>% dplyr::filter(!!sym(filter_var2) %in% filter_levels2)
+  }else{
+    metadata_filtered <- metadata_filtered
   }
   
   message("Comparing variable: ", target_var, "\n")
@@ -142,6 +148,9 @@ batch_runDESeq2 <- function(input_comparisons, counts, metadata, gene_id_format 
     filter_var <- input_comparisons[i, "filter_var"] %>% as.character()
     filter_levels <- input_comparisons[i, "filter_levels"] %>% as.character()
     filter_levels <- str_split(filter_levels, pattern = ",") %>% unlist() %>% trimws()
+    filter_var2 <- input_comparisons[i, "filter_var2"] %>% as.character()
+    filter_levels2 <- input_comparisons[i, "filter_levels2"] %>% as.character()
+    filter_levels2 <- str_split(filter_levels2, pattern = ",") %>% unlist() %>% trimws()
     outdir <- input_comparisons[i, "outdir"] %>% as.character()
     custom_label <- input_comparisons[i, "custom_label"] %>% as.character()
     
@@ -151,6 +160,8 @@ batch_runDESeq2 <- function(input_comparisons, counts, metadata, gene_id_format 
                           covariates = covariates, 
                           filter_var = filter_var, 
                           filter_levels = filter_levels, 
+                          filter_var2 = filter_var2, 
+                          filter_levels2 = filter_levels2, 
                           outdir = outdir,
                           gene_id_format = gene_id_format, 
                           geneAnno = geneAnno, 
