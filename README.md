@@ -28,12 +28,17 @@ BiocManager::install("DESeq2")
 This is a wrapper function that passes all the arguments to the *runDESeq2* function looping over all the desired comparisons.
 <br/><br/>
 
-**Comparisons sheet**: The parameters corresponding to each comparison are provided in an Excel file (XLSX) provided to the function with the **input_comparisons** parameter. Should contain the following columns:
+**Comparisons sheet**: The parameters corresponding to each comparison are provided in an Excel file (XLSX) provided to the function with the **input_comparisons** parameter. 
+> [!IMPORTANT]  
+> Should contain **all** the following columns, although not all of them need to contain data:
+
 - **custom_label**: the label for the comparison. It will be included in the results directory and files names.
 - **target_var**: the name of the metadata variable of interest for the comparison. Must be a factor with two levels in the metadata. As per DESeq2's vignette, the first level corresponds to the reference and the second level to the treatment.
 - **covariates** (optional): the name of the metadata variables that should be used as covariates. If more than one, separate them by commas.
 - **filter_var** (optional): if before performing the comparisons you want to filter your data using another variable, indicate the metadata column name of that variable here.
 - **filter_levels** (if using *filter_var*): the level of *filter_var* that should be subset before performing the analysis.
+- **filter_var2** (optional): like *filter_var*, to filter for an additional variable.
+- **filter_levels2** (if using *filter_var2*): like *filter_levels*, for *filter_var2*
 - **outdir**: the directory where all result files will be output.
 
 This is how the XLSX file would look like to perform the comparison 
@@ -51,8 +56,10 @@ The rest of parameters of this function are:
 - **gene_id_format** (optional): the column in *geneAnno* containing the gene IDs that match those in *counts* used to join both data frames.
 - **pre_filtering**: if set to TRUE (default), genes with less than 10 counts in less than as many samples as the smallest experimental group involved in the comparison has will be removed (e.g. if the smallest group has 4 samples, genes with less than 4 samples with >10 samples will be excluded). Set to FALSE to avoid pre-filtering.
 - **sink_to_log**: if set to TRUE (default), it will create a log file providing information about the differential expression analysis. Set to FALSE to show this information in the R console instead.
-> Note: the samples in counts column names must match and be in the same order as those in the metadata row names.
-<br/><br/>
+> [!NOTE]
+> The samples in counts column names must match and be in the same order as those in the metadata row names.
+
+<br/>
 
 ## runDESeq2 function
 
