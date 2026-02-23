@@ -25,13 +25,13 @@ runDESeq2 <- function(counts, metadata, target_var, covariates = NA, filter_var 
   }
   
   # Filter metadata
-  if(!is.na(filter_var)){
+  if(!(filter_var == "NA") & !(is.na(filter_var))){
     metadata_filtered <- metadata %>% dplyr::filter(!!sym(filter_var) %in% filter_levels)
   }else{
     metadata_filtered <- metadata
   }
   
-  if(!is.na(filter_var2)){
+  if(!(filter_var2 == "NA") & !(is.na(filter_var2))){
     metadata_filtered <- metadata_filtered %>% dplyr::filter(!!sym(filter_var2) %in% filter_levels2)
   }else{
     metadata_filtered <- metadata_filtered
@@ -168,6 +168,8 @@ batch_runDESeq2 <- function(input_comparisons, counts, metadata, gene_id_format 
                           custom_label = custom_label, 
                           pre_filtering = pre_filtering,
                           sink_to_log = sink_to_log)
+    
+    names(res)[i] <- custom_label
   }
   
   return(res)
