@@ -33,7 +33,8 @@ This is a wrapper function that passes all the arguments to the *runDESeq2* func
 > Should contain **all** the following columns, although not all of them need to contain data:
 
 - **custom_label**: the label for the comparison. It will be included in the results directory and files names.
-- **target_var**: the name of the metadata variable of interest for the comparison. Must be a factor with two levels in the metadata. As per DESeq2's vignette, the first level corresponds to the reference and the second level to the treatment.
+- **target_var**: the name of the metadata variable of interest for the comparison.
+- **target_levels**: the names of the target variable levels to compare. As per DESeq2's vignette, the first level corresponds to the reference and the second level to the treatment.
 - **covariates** (optional): the name of the metadata variables that should be used as covariates. If more than one, separate them by commas.
 - **filter_var** (optional): if before performing the comparisons you want to filter your data using another variable, indicate the metadata column name of that variable here.
 - **filter_levels** (if using *filter_var*): the level of *filter_var* that should be subset before performing the analysis.
