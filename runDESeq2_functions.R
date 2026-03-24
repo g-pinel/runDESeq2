@@ -4,18 +4,21 @@ library(DESeq2)
 batch_runDESeq2 <- function(input_comparisons, counts, metadata, gene_id_format = NULL, geneAnno = NULL, pre_filtering = TRUE, sink_to_log = TRUE){
   
   res <- list()
+  input_comparisons <- as.data.frame(input_comparisons)
+  input_comparisons[input_comparisons == ""] <- NA
+  input_comparisons[input_comparisons == "NA"] <- NA
   
   for(i in 1:nrow(input_comparisons)){
     
     target_var <- input_comparisons[i, "target_var"] %>% as.character()
     target_levels <- input_comparisons[i, "target_levels"] %>% as.character()
     target_levels <- str_split(target_levels, pattern = ",") %>% unlist() %>% trimws()
-    covariates <- input_comparisons[i, "covariates"] %>% as.character()
-    filter_var <- input_comparisons[i, "filter_var"] %>% as.character()
-    filter_levels <- input_comparisons[i, "filter_levels"] %>% as.character()
+    covariates <- input_comparisons[i, "covariates"]
+    filter_var <- input_comparisons[i, "filter_var"]
+    filter_levels <- input_comparisons[i, "filter_levels"]
     filter_levels <- str_split(filter_levels, pattern = ",") %>% unlist() %>% trimws()
-    filter_var2 <- input_comparisons[i, "filter_var2"] %>% as.character()
-    filter_levels2 <- input_comparisons[i, "filter_levels2"] %>% as.character()
+    filter_var2 <- input_comparisons[i, "filter_var2"]
+    filter_levels2 <- input_comparisons[i, "filter_levels2"]
     filter_levels2 <- str_split(filter_levels2, pattern = ",") %>% unlist() %>% trimws()
     outdir <- input_comparisons[i, "outdir"] %>% as.character()
     custom_label <- input_comparisons[i, "custom_label"] %>% as.character()
@@ -67,13 +70,13 @@ runDESeq2 <- function(counts, metadata, target_var, target_levels, covariates = 
   }
   
   # Filter metadata
-  if(!(filter_var == "NA") & !(is.na(filter_var))){
+  if(!(is.na(filter_var))){
     metadata_filtered <- metadata %>% dplyr::filter(!!sym(filter_var) %in% filter_levels)
   }else{
     metadata_filtered <- metadata
   }
   
-  if(!(filter_var2 == "NA") & !(is.na(filter_var2))){
+  if(!(is.na(filter_var2))){
     metadata_filtered <- metadata_filtered %>% dplyr::filter(!!sym(filter_var2) %in% filter_levels2)
   }else{
     metadata_filtered <- metadata_filtered
@@ -92,7 +95,6 @@ runDESeq2 <- function(counts, metadata, target_var, target_levels, covariates = 
   treatment_group <- levels(metadata_filtered[,target_var])[2]
   message("Comparing variable levels: ", treatment_group, " versus ", reference_group)
   
-  if(covariates == "NA"){covariates <- NA}
   if(all(!is.na(covariates))){message("Using covariates: ", paste(covariates, collapse = ", "))}
   
   # Get reference and treatment samples
