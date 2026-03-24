@@ -1,7 +1,49 @@
 library(tidyverse)
 library(DESeq2)
 
-runDESeq2 <- function(counts, metadata, target_var, covariates = NA, filter_var = NULL, filter_levels = NULL, filter_var2 = NULL, filter_levels2 = NULL, outdir, gene_id_format = NULL, geneAnno = NULL, custom_label, pre_filtering = TRUE, sink_to_log = TRUE){
+batch_runDESeq2 <- function(input_comparisons, counts, metadata, gene_id_format = NULL, geneAnno = NULL, pre_filtering = TRUE, sink_to_log = TRUE){
+  
+  res <- list()
+  
+  for(i in 1:nrow(input_comparisons)){
+    
+    target_var <- input_comparisons[i, "target_var"] %>% as.character()
+    target_levels <- input_comparisons[i, "target_levels"] %>% as.character()
+    target_levels <- str_split(target_levels, pattern = ",") %>% unlist() %>% trimws()
+    covariates <- input_comparisons[i, "covariates"] %>% as.character()
+    filter_var <- input_comparisons[i, "filter_var"] %>% as.character()
+    filter_levels <- input_comparisons[i, "filter_levels"] %>% as.character()
+    filter_levels <- str_split(filter_levels, pattern = ",") %>% unlist() %>% trimws()
+    filter_var2 <- input_comparisons[i, "filter_var2"] %>% as.character()
+    filter_levels2 <- input_comparisons[i, "filter_levels2"] %>% as.character()
+    filter_levels2 <- str_split(filter_levels2, pattern = ",") %>% unlist() %>% trimws()
+    outdir <- input_comparisons[i, "outdir"] %>% as.character()
+    custom_label <- input_comparisons[i, "custom_label"] %>% as.character()
+    
+    res[[i]] <- runDESeq2(counts = counts, 
+                          metadata = metadata,
+                          target_var = target_var, 
+                          target_levels = target_levels,
+                          covariates = covariates, 
+                          filter_var = filter_var, 
+                          filter_levels = filter_levels, 
+                          filter_var2 = filter_var2, 
+                          filter_levels2 = filter_levels2, 
+                          outdir = outdir,
+                          gene_id_format = gene_id_format, 
+                          geneAnno = geneAnno, 
+                          custom_label = custom_label, 
+                          pre_filtering = pre_filtering,
+                          sink_to_log = sink_to_log)
+    
+    names(res)[i] <- custom_label
+  }
+  
+  return(res)
+}
+
+
+runDESeq2 <- function(counts, metadata, target_var, target_levels, covariates = NA, filter_var = NULL, filter_levels = NULL, filter_var2 = NULL, filter_levels2 = NULL, outdir, gene_id_format = NULL, geneAnno = NULL, custom_label, pre_filtering = TRUE, sink_to_log = TRUE){
   
   # If needed, create results directory for the results
   # Create folder for results of differential expression analysis
@@ -37,13 +79,21 @@ runDESeq2 <- function(counts, metadata, target_var, covariates = NA, filter_var 
     metadata_filtered <- metadata_filtered
   }
   
+  metadata_filtered <- as.data.frame(metadata_filtered)
+  
   message("Comparing variable: ", target_var, "\n")
-  message("Variable levels: ", paste0(levels(metadata_filtered[,target_var]), collapse = ", "))
-  if(all(!is.na(covariates))){message("Using covariates: ", paste(covariates, collapse = ", "))}
+  # message("Variable levels: ", paste0(levels(metadata_filtered[,target_var]), collapse = ", "))
+  
+  metadata_filtered <- metadata_filtered %>% 
+    dplyr::mutate(!!sym(target_var) := factor(!!sym(target_var), levels = target_levels))
   
   # Get reference and treatment groups
   reference_group <- levels(metadata_filtered[,target_var])[1]
   treatment_group <- levels(metadata_filtered[,target_var])[2]
+  message("Comparing variable levels: ", treatment_group, " versus ", reference_group)
+  
+  if(covariates == "NA"){covariates <- NA}
+  if(all(!is.na(covariates))){message("Using covariates: ", paste(covariates, collapse = ", "))}
   
   # Get reference and treatment samples
   reference_samples <- metadata_filtered %>% dplyr::filter(!!sym(target_var) == reference_group) %>% rownames()
@@ -134,43 +184,4 @@ runDESeq2 <- function(counts, metadata, target_var, covariates = NA, filter_var 
   write.csv(res_normCounts_df, paste0(res_dir, "/NormCounts_", custom_label, ".csv"), row.names = F)
   
   return(list(dds, res_df, res_normCounts_df))
-}
-
-
-batch_runDESeq2 <- function(input_comparisons, counts, metadata, gene_id_format = NULL, geneAnno = NULL, pre_filtering = TRUE, sink_to_log = TRUE){
-  
-  res <- list()
-  
-  for(i in 1:nrow(input_comparisons)){
-    
-    target_var <- input_comparisons[i, "target_var"] %>% as.character()
-    covariates <- input_comparisons[i, "covariates"] %>% as.character()
-    filter_var <- input_comparisons[i, "filter_var"] %>% as.character()
-    filter_levels <- input_comparisons[i, "filter_levels"] %>% as.character()
-    filter_levels <- str_split(filter_levels, pattern = ",") %>% unlist() %>% trimws()
-    filter_var2 <- input_comparisons[i, "filter_var2"] %>% as.character()
-    filter_levels2 <- input_comparisons[i, "filter_levels2"] %>% as.character()
-    filter_levels2 <- str_split(filter_levels2, pattern = ",") %>% unlist() %>% trimws()
-    outdir <- input_comparisons[i, "outdir"] %>% as.character()
-    custom_label <- input_comparisons[i, "custom_label"] %>% as.character()
-    
-    res[[i]] <- runDESeq2(counts = counts, 
-                          metadata = metadata,
-                          target_var = target_var, 
-                          covariates = covariates, 
-                          filter_var = filter_var, 
-                          filter_levels = filter_levels, 
-                          filter_var2 = filter_var2, 
-                          filter_levels2 = filter_levels2, 
-                          outdir = outdir,
-                          gene_id_format = gene_id_format, 
-                          geneAnno = geneAnno, 
-                          custom_label = custom_label, 
-                          pre_filtering = pre_filtering,
-                          sink_to_log = sink_to_log)
-    
-    names(res)[i] <- custom_label
-  }
-  
-  return(res)
 }
