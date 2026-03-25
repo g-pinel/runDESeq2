@@ -14,6 +14,7 @@ batch_runDESeq2 <- function(input_comparisons, counts, metadata, gene_id_format 
     target_levels <- input_comparisons[i, "target_levels"] %>% as.character()
     target_levels <- str_split(target_levels, pattern = ",") %>% unlist() %>% trimws()
     covariates <- input_comparisons[i, "covariates"]
+    covariates <- str_split(covariates, pattern = ",") %>% unlist() %>% trimws()
     filter_var <- input_comparisons[i, "filter_var"]
     filter_levels <- input_comparisons[i, "filter_levels"]
     filter_levels <- str_split(filter_levels, pattern = ",") %>% unlist() %>% trimws()
