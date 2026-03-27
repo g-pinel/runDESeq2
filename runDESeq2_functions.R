@@ -165,7 +165,7 @@ runDESeq2 <- function(counts, metadata, target_var, target_levels, covariates = 
   
   if(!missing(geneAnno) & !missing(gene_id_format)){
     res_df <- res_df %>% 
-      dplyr::left_join(geneAnno, by = c("gene_id" = gene_id_format))
+      dplyr::left_join(geneAnno, by = c("gene_id" = gene_id_format), multiple = "first")
   }else if(!missing(geneAnno) & missing(gene_id_format)){
     message("Please, provide a gene id format (gene_id_format parameter) matching a column in geneAnno to add gene-level annotations")
   }
