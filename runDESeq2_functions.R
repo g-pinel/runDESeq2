@@ -116,7 +116,7 @@ runDESeq2 <- function(counts, metadata, target_var, target_levels, covariates = 
   counts_filtered <- counts[,rownames(metadata_filtered)]
   
   # Check needed for DESeq2
-  if(all(colnames(counts_filtered) == rownames(metadata_filtered))){
+  if(identical(colnames(counts_filtered), rownames(metadata_filtered))){
     message("Sample names in count matrix and metadata match, continuing...")
   }else{
     stop("Mismatch between sample names in count matrix and metadata")
